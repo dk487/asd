@@ -2,6 +2,10 @@
 
 # https://eolymp.com/problems/3970
 
+# УВАГА
+# один з тестових наборів даних на Eolymp падає, AssertionError
+# якщо закоментувати рядки з assert, то все працює
+
 def int_list(s):
     return [int(i) for i in s.split()]
 
