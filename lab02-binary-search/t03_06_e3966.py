@@ -5,17 +5,18 @@
 def int_list(s):
     return [int(i) for i in s.split()]
 
-import random
 def check(i):
-    return random.choice([True, False])
+    # це тупо заглушка
+    # маємо зробити свій саморобний бінарний пошук
+    return i in butterflies
 
 n = int(input())
-butterfiles = int_list(input())
-assert n == len(butterfiles)
+butterflies = int_list(input())
+assert n >= 1 and n <= 100000 and n == len(butterflies)
 
 m = int(input())
 query = int_list(input())
-assert m == len(query)
+assert m >= 1 and m <= 100000 and m == len(query)
 
 for i in query:
     print(['NO', 'YES'][check(i)])
