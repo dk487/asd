@@ -5,3 +5,4 @@
 
  * Головний репозитарій: <https://codeberg.org/dmytro-kolesnykov/asd>
  * Дзеркало на GitHub: <https://github.com/dk487/asd>
+ * Обліковий запис Eolymp: <https://eolymp.com/users/dmytro_kolesnykov>
