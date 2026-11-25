@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-# https://github.com/dk487/asd/blob/main/lab02-binary-search/t03_06_e3966.py
 # https://eolymp.com/problems/3966
 
 def int_list(s):
