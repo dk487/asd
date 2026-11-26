@@ -24,14 +24,13 @@ class MyOpenAddrHash:
         i = start_i = self.mkhash(key) % len(self.data)
         thombstone = None
         while True:
-            cell = self.data[i]
-            if cell is None:
+            if self.data[i] is None:
                 if thombstone is not None:
                     self.data[thombstone] = value
                 else:
                     self.data[i] = value
                 return
-            if cell is False:
+            if self.data[i] is False:
                 if thombstone is None:
                     thombstone = i
             elif self.data[i] == value:
@@ -59,7 +58,7 @@ class MyOpenAddrHash:
         while True:
             if self.data[i] is None:
                 return
-            elif self.data[i] == value:
+            elif self.data[i] is not False and self.data[i] == value:
                 self.data[i] = False
                 return
             i = (i+1) % len(self.data)
@@ -67,8 +66,17 @@ class MyOpenAddrHash:
                 return
 
 
+# сховище елементів вигляду ['Автор', 'Книга'] або False
+# елементи тільки додаються в кінець, непотрібні заміняються на False
 big_pile = []
-h_ab = MyOpenAddrHash(10000)
+
+# хеш-таблиця по авторам та назвам книжок
+# вміст - індекс книги в big_pile
+h_ab = None
+
+# хеш-таблиця по авторам (які у автора є книжки)
+# вміст - масив ['Aвтор', [111, 222, 333]], де 111, 222, 333 - індекси
+h_a = None
 
 
 def mkkey(author, title):
@@ -79,7 +87,15 @@ def mkkey(author, title):
 
 def init():
     """ Викликається 1 раз на початку виконання програми. """
-    pass
+    global big_pile, h_ab, h_a
+    new_len = max(100, len(big_pile) * 10)
+    old_pile = big_pile
+    big_pile = []
+    h_ab = MyOpenAddrHash(new_len)
+    h_a = MyOpenAddrHash(new_len)
+    for row in old_pile:
+        if row is not False:
+            addBook(row[0], row[1])
 
 
 def addBook(author, title):
@@ -87,9 +103,27 @@ def addBook(author, title):
     :param author: Автор книги
     :param title: Назва книги
     """
-    if find(author, title) == False:
-        big_pile.append([author, title])
-        h_ab.add(mkkey(author, title), len(big_pile) - 1)
+    if find(author, title) == True:
+        return
+
+    # чи прийшов час зробити rehash?
+    # заповнення хеш-таблиці на 50% вже цілком достатньо
+    if 2 * len(big_pile) > len(h_ab.data):
+        init()
+
+    big_pile.append([author, title])
+    idx = len(big_pile) - 1
+    h_ab.add(mkkey(author, title), idx)
+
+    for author_books in h_a.find(author):
+        if author_books[0] == author:
+            h_a.wipe(author, author_books)
+            author_books[1].append(idx)
+            h_a.add(author, author_books)
+            return
+
+    # це перша книга цього автора?
+    h_a.add(author, [author, [idx]])
 
 
 def find(author, title):
@@ -110,11 +144,17 @@ def delete(author, title):
     :param title: Назва книги
     """
     key = mkkey(author, title)
+    value = [author, title]
     for idx in h_ab.find(key):
-        if big_pile[idx][0] == author and big_pile[idx][1] == title:
+        if big_pile[idx] == value:
             big_pile[idx] = False
             h_ab.wipe(key, idx)
-            return
+            for author_books in h_a.find(author):
+                if author_books[0] == author:
+                    h_a.wipe(author, author_books)
+                    author_books[1].remove(idx)
+                    h_a.add(author, author_books)
+                    return
 
 
 def findByAuthor(author):
@@ -123,12 +163,12 @@ def findByAuthor(author):
     :param author: Автор
     :return: Список книг заданого автора у алфавітному порядку.
     """
-    # для початку, повним перебором
-    # python3 main.py  9,18s user 0,02s system 99% cpu 9,196 total
+    # python3 main.py  2,29s user 0,01s system 99% cpu 2,299 total
     result = []
-    for book in big_pile:
-        if book is not False and book[0] == author:
-            result = result + [book[1]]
+    for author_books in h_a.find(author):
+        if author_books[0] == author:
+            for idx in author_books[1]:
+                result.append(big_pile[idx][1])
     result.sort()
     return result
 
