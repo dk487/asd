@@ -4,6 +4,8 @@
 Бібліотека може містити кілька книг одного автора.
 """
 
+class MyHashOverflow(Exception):
+    pass
 
 class MyOpenAddrHash:
     """ Реалізація специфічної хеш-таблиці з відкритою адресацією """
@@ -12,7 +14,7 @@ class MyOpenAddrHash:
         :param size: кількість елементів в хеш-таблиці """
         assert size > 0
         # None означає відсутність елементу
-        # False означає, що елемент був, але його видалили (thombstone)
+        # False означає, що елемент був, але його видалили (tombstone)
         self.data = [None] * size
 
     def mkhash(self, key: str):
@@ -30,25 +32,25 @@ class MyOpenAddrHash:
         :param key: строка, яка виступає ключем
         :param value: довільне значення елемента """
         i = start_i = self.mkhash(key) % len(self.data)
-        thombstone = None
+        tombstone = None
         while True:
             if self.data[i] is None:
-                if thombstone is not None:
-                    self.data[thombstone] = value
+                if tombstone is not None:
+                    self.data[tombstone] = value
                 else:
                     self.data[i] = value
                 return
             if self.data[i] is False:
-                if thombstone is None:
-                    thombstone = i
+                if tombstone is None:
+                    tombstone = i
             elif self.data[i] == value:
                 return
             i = (i+1) % len(self.data)
             if i == start_i:
-                if thombstone is not None:
-                    self.data[thombstone] = value
+                if tombstone is not None:
+                    self.data[tombstone] = value
                     return
-                raise MemoryError('No space left')
+                raise MyHashOverflow('No space left')
 
     def find(self, key: str):
         """ Пошук можливих елементів по ключу
@@ -93,15 +95,13 @@ hash_authors = None
 
 
 def mkkey(author, title):
-    """ Будує ключ для хешування
+    """ Будує ключ для хешування.
     :param author: Автор книги
     :param title: Назва книги """
     return author + title
-    # це буде використано для хешування, чи не так?
-    # а колізіями хай сама хеш-таблиця займається
 
 def findAuthor(author):
-    """ Пошук профайлу автора
+    """ Пошук профайлу автора.
     :param author: Автор книги
     :return: масив, якщо автор є у бібліотеці та False у іншому разі """
     for profile in hash_authors.find(author):
@@ -111,7 +111,7 @@ def findAuthor(author):
 
 
 def init():
-    """ Викликається 1 раз на початку виконання програми. """
+    """ Ініціалізація або перебудова сховища та хеш-таблиць. """
     global big_pile, hash_books, hash_authors
     new_len = max(100, len(big_pile) * 10)
     old_pile = big_pile
@@ -132,8 +132,8 @@ def addBook(author, title):
 
     # чи прийшов час зробити rehash? ми можемо не чекати
     # заповнення хеш-таблиці, скажімо, на 50% вже цілком достатньо
-    if 2 * len(big_pile) > len(hash_books.data):
-        init()
+    #if 2 * len(big_pile) > len(hash_books.data):
+    #    init()
 
     try:
         big_pile.append([author, title])
@@ -147,7 +147,7 @@ def addBook(author, title):
             hash_authors.add(author, profile)
         else:
             hash_authors.add(author, [author, [idx]])
-    except MemoryError:
+    except MyHashOverflow:
         init()
         addBook(author, title)
 
@@ -189,7 +189,6 @@ def findByAuthor(author):
     :param author: Автор
     :return: Список книг заданого автора у алфавітному порядку.
     """
-    # python3 main.py  2,29s user 0,01s system 99% cpu 2,299 total
     result = []
     profile = findAuthor(author)
     if profile:
