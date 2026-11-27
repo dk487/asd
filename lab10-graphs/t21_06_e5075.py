@@ -13,7 +13,7 @@ if __name__ == '__main__':
     v_i = [0] * n   # Vertex In
     v_o = [0] * n   # Vertex Out
 
-    for i in range(m):
+    for j in range(m):
         o, i = int_list(input())
         assert 1 <= i <= n
         assert 1 <= o <= n
