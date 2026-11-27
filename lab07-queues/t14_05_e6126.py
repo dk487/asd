@@ -28,7 +28,7 @@ class Queue:
 
     def pop(self):
         if not self.size:
-            return None
+            return 'error'
 
         value = self.head.value
         self.head = self.head.next
@@ -40,7 +40,7 @@ class Queue:
         return value
 
     def front(self):
-        return self.head.value if self.head else None
+        return self.head.value if self.head else 'error'
 
     def clear(self):
         self.head = self.tail = None
@@ -61,9 +61,9 @@ if __name__ == '__main__':
                 q.push(arg)
                 print('ok')
             case 'pop':
-                print(q.pop() or 'error')
+                print(q.pop())
             case 'front':
-                print(q.front() or 'error')
+                print(q.front())
             case 'size':
                 print(q.size)
             case 'clear':
