@@ -1,28 +1,74 @@
 #!/usr/bin/env python3
 
 # https://eolymp.com/problems/6126
+# Вказівка. Реалізувати чергу як рекурсивну структуру.
 
-queue = []
-while True:
-    try:
-        cmd, arg = input(), None
-    except EOFError:
-        break
-    if ' ' in cmd:
-        cmd, arg = cmd.split(' ')
-    match cmd:
-        case 'push':
-            queue.append(arg)       
-            print('ok')
-        case 'pop':
-            print(queue.pop(0) if len(queue) else 'error')
-        case 'front':
-            print(queue[0] if len(queue) else 'error')
-        case 'size':
-            print(len(queue))
-        case 'clear':
-            queue = []
-            print('ok')
-        case 'exit':
-            print('bye')
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.next = None
+
+
+class Queue:
+    def __init__(self):
+        self.head = None
+        self.tail = None
+        self.size = 0
+
+    def push(self, value):
+        node = Node(value)
+
+        if self.size:
+            self.tail.next = node
+        else:
+            self.head = node
+
+        self.tail = node
+        self.size += 1
+
+    def pop(self):
+        if not self.size:
+            return None
+
+        value = self.head.value
+        self.head = self.head.next
+        self.size -= 1
+
+        if not self.head:
+            self.tail = None
+
+        return value
+
+    def front(self):
+        return self.head.value if self.head else None
+
+    def clear(self):
+        self.head = self.tail = None
+        self.size = 0
+
+if __name__ == '__main__':
+    q = Queue()
+
+    while True:
+        try:
+            cmd, arg = input(), None
+        except EOFError:
             break
+        if ' ' in cmd:
+            cmd, arg = cmd.split(' ')
+        match cmd:
+            case 'push':
+                q.push(arg)
+                print('ok')
+            case 'pop':
+                print(q.pop() or 'error')
+            case 'front':
+                print(q.front() or 'error')
+            case 'size':
+                print(q.size)
+            case 'clear':
+                q.clear()
+                print('ok')
+            case 'exit':
+                print('bye')
+                break
