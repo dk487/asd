@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
 
+// https://eolymp.com/problems/2663
+// Сортування бульбашкою
+
 int main() {
     int n, count = 0, sorted;
     if (!(std::cin >> n) || n <= 0)
