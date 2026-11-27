@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# https://eolymp.com/problems/5080
+# https://eolymp.com/problems/5075
 
 def int_list(s):
     return [int(i) for i in s.split()]
