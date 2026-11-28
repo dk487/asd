@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 
-// https://eolymp.com/problems/2667
+// https://eolymp.com/problems/2664
 // Сортування вставкою
 
 int main() {
